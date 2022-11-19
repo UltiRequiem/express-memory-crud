@@ -2,7 +2,7 @@ import express from "express";
 
 const itemsRouter = new express.Router();
 
-let orderIdCounter = 1;
+let orderIdCounter = 0;
 
 function createItem(title, completed = false, date = new Date()) {
   orderIdCounter++;
@@ -30,7 +30,7 @@ itemsRouter.get("/:id", (request, response) => {
   const found = findItemById(desiredId);
 
   if (!found) {
-    response.sendStatus(404);
+    return response.sendStatus(404);
   }
 
   response.json(found);
@@ -40,7 +40,7 @@ itemsRouter.post("/", (request, response) => {
   const title = request.body.title;
 
   if (!title) {
-    response.json({ error: "No title provided" });
+    return response.json({ error: "No title provided" });
   }
 
   const newItem = createItem(title);
@@ -56,13 +56,13 @@ itemsRouter.put("/:id", (request, response) => {
   const found = findItemById(id);
 
   if (!found) {
-    response.sendStatus(404);
+    return response.sendStatus(404);
   }
 
   const updated = {
     ...found,
-    title: request.params.title,
-    completed: request.params.completed,
+    title: request.body.title,
+    completed: request.body.completed,
   };
 
   const targetIndex = data.indexOf(found);
@@ -78,12 +78,14 @@ itemsRouter.delete("/:id", (request, response) => {
   const found = findItemById(id);
 
   if (!found) {
-    response.sendStatus(404);
+    return response.sendStatus(404);
   }
 
   const targetIndex = data.indexOf(found);
 
   data.splice(targetIndex, 1);
+
+  response.json(found);
 });
 
 export default itemsRouter;
